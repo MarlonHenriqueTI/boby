@@ -2,49 +2,40 @@ import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'categoria-single.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class DrawerWidget extends StatefulWidget {
-  DrawerWidget();
+  List dados;
+  List categoria;
+  DrawerWidget(this.dados, this.categoria);
   @override
-  _DrawerWidgetState createState() => new _DrawerWidgetState();
+  _DrawerWidgetState createState() => new _DrawerWidgetState(dados, categoria);
 }
 
 class _DrawerWidgetState extends State<DrawerWidget> {
 
-  _DrawerWidgetState();
+  List categoria;
+  List dados;
+  _DrawerWidgetState(this.dados, this.categoria);
+  @override
+
   int pagina;
 //Cria uma listview com os itens do menu
   Widget _listMenu() {
     return ListView(
       children: <Widget>[
         Divider(),
-        _tiles("CHAMAR NO WHATSAPP", FontAwesome.getIconData("whatsapp"), 1, (){}),
+        _tiles("CHAMAR NO WHATSAPP", FontAwesome.getIconData("whatsapp"), 1, (){
+          _launchURL("https://wa.me/${dados[0]["whatsapp"]}?text=Ola vim pelo app");
+        }),
         Divider(),
-        _tiles("TELEFONE: (XX)XXXX-XXXX", Icons.call, 1,(){}),
+        _tiles("TELEFONE: ${dados[0]["telefone"]}", Icons.call, 1,(){}),
         Divider(),
-        _tiles("E_MAIL: email@email.com", Icons.mail_outline, 1, (){}),
+        _tiles("E_MAIL: ${dados[0]["email"]}", Icons.mail_outline, 1, (){
+          _launchURL("mailto:${dados[0]["email"]}");
+        }),
         Divider(),
-        _tiles("CATEGORIA DE AQUECEDORES", Icons.person, 1, () {
-
-        }),
-        _tiles("CATEGORIA DE AQUECEDORES", Icons.account_balance, 1, () {
-
-        }),
-        _tiles("CATEGORIA DE AQUECEDORES", Icons.graphic_eq, 1, () {
-
-        }),
-        _tiles("CATEGORIA DE AQUECEDORES", Icons.assignment, 1, () {
-
-        }),
-        _tiles("CATEGORIA DE AQUECEDORES", Icons.attach_file, 2, () {
-
-        }),
-        _tiles("CATEGORIA DE AQUECEDORES", Icons.file_download, 3, () {
-
-        }),
-        _tiles("CATEGORIA DE AQUECEDORES", Icons.video_library, 4, () {
-
-        }),
 
       ],
     );
@@ -81,8 +72,8 @@ class _DrawerWidgetState extends State<DrawerWidget> {
 
 
 
-_launchURL() async {
-  const url = 'https://wa.me/5531995012807?text=Ola vim pelo app';
+_launchURL(String link) async {
+  var url = link;
   if (await canLaunch(url)) {
     await launch(url, enableJavaScript: true, forceWebView: false);
   } else {

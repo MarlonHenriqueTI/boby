@@ -2,163 +2,252 @@ import 'package:boby/single-produto.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:carousel_slider/carousel_slider.dart';
+import 'package:flutter_swiper/flutter_swiper.dart';
+import 'package:http/http.dart' as http;
+import 'drawer.dart';
+import 'dart:convert';
 
 class Categoria extends StatefulWidget {
+  String id;
+  String nome;
+
+  Categoria(this.id, this.nome);
+
   @override
-  _CategoriaState createState() => _CategoriaState();
+  _CategoriaState createState() => _CategoriaState(id, nome);
 }
 
 class _CategoriaState extends State<Categoria> {
+  String id;
+  String nome;
+
+  _CategoriaState(this.id, this.nome);
+
+  List produtos;
+  List dados;
+  List fotos;
+  int tamanho;
+  bool _loadingInProgress;
+
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-            icon: Icon(
-              Icons.arrow_back,
-              size: 35.0,
-              color: Colors.black54,
-            ),
-            onPressed: () {
-              Navigator.pop(context);
-            }),
-        title: Text(
-          "BOBY",
-          style: TextStyle(color: Colors.black54, fontSize: 25.0),
-          textAlign: TextAlign.center,
-        ),
-        centerTitle: true,
-        actions: <Widget>[
-          IconButton(
-            icon: Icon(
-              FontAwesome.getIconData("whatsapp"),
-              size: 35.0,
-              color: Colors.black54,
-            ),
-            onPressed: _launchURL,
-          ),
-        ],
-      ),
-      body: SingleChildScrollView(
-        child: Container(
-          padding: EdgeInsets.all(10.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: <Widget>[
-              Text(
-                "Nome Da Categoria",
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 30.0, color: Colors.amber),
+  Future initState() {
+    _loadingInProgress = true;
+    getProdutos(id);
+    getAppDados();
+    _loadData();
+  }
+
+  _launchURL(String numero) async {
+    var url = 'https://wa.me/${numero}?text=Ola vim pelo app';
+    if (await canLaunch(url)) {
+      await launch(url, enableJavaScript: true, forceWebView: false);
+    } else {
+      throw 'Não foi possivel abrir $url';
+    }
+  }
+
+  Future _loadData() async {
+    await new Future.delayed(new Duration(seconds: 3));
+    _dataLoaded();
+  }
+
+  void _dataLoaded() {
+    setState(() {
+      _loadingInProgress = false;
+    });
+  }
+
+  Widget _buildBody() {
+    if (_loadingInProgress) {
+      return new Center(
+        child: new CircularProgressIndicator(),
+      );
+    } else {
+      return Scaffold(
+        appBar: AppBar(
+          leading: IconButton(
+              icon: Icon(
+                Icons.arrow_back,
+                size: 35.0,
+                color: Colors.black54,
               ),
-              Divider(),
-              CarouselSlider(
-                autoPlay: true,
-                viewportFraction: 1.0,
-                autoPlayInterval: Duration(seconds: 3),
-                autoPlayAnimationDuration: Duration(milliseconds: 800),
-                pauseAutoPlayOnTouch: Duration(seconds: 10),
-                height: 600.0,
-                items: [1, 2, 3, 4, 5].map((i) {
-                  return Builder(
-                    builder: (BuildContext context) {
+              onPressed: () {
+                Navigator.pop(context);
+              }),
+          title: Text(
+            "BOBY",
+            style: TextStyle(color: Colors.black54, fontSize: 25.0),
+            textAlign: TextAlign.center,
+          ),
+          centerTitle: true,
+          actions: <Widget>[
+            IconButton(
+              icon: Icon(
+                FontAwesome.getIconData("whatsapp"),
+                size: 35.0,
+                color: Colors.black54,
+              ),
+              onPressed: () {
+                _launchURL(dados[0]["whatsapp"]);
+              },
+            ),
+          ],
+        ),
+        body: SingleChildScrollView(
+          child: Container(
+            padding: EdgeInsets.all(10.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: <Widget>[
+                Text(
+                  "${nome}",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 30.0, color: Colors.amber),
+                ),
+                Divider(),
+                Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(
+                        color: Colors.amber, style: BorderStyle.solid),
+                  ),
+                  height: (MediaQuery.of(context).size.height) / 1.3,
+                  child: Swiper(
+                    control: new SwiperControl(),
+                    loop: true,
+                    autoplay: true,
+                    autoplayDisableOnInteraction: true,
+                    autoplayDelay: 5000,
+                    itemCount: produtos == null ? 0 : 3,
+                    itemBuilder: (BuildContext context, int index) {
+                      getFotos(produtos[index]["id"]);
                       return GestureDetector(
                         onTap: () {
                           Navigator.push(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) => Produto()));
+                                  builder: (context) =>
+                                      Produto(produtos[index]["id"])));
                         },
                         child: Container(
                           width: MediaQuery.of(context).size.width,
                           margin: EdgeInsets.symmetric(horizontal: 5.0),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.stretch,
-                            mainAxisAlignment: MainAxisAlignment.center,
                             children: <Widget>[
                               Image.network(
-                                  "https://www.pontofrio-imagens.com.br/ArVentilacao/Aquecedores/aquecedorEletrico/2233506/11665760/Aquecedor-Cadence-Halogenio-Oscilante-Comodita-1200W-com-3-niveis-de-aquecimento-AQC300-Preto-2233506.jpg"),
+                                "http://boby.con4.com.br/imagens/${fotos[0]["foto"]}",
+                                fit: BoxFit.contain,
+                                height: MediaQuery.of(context).size.height / 2,
+                                width: MediaQuery.of(context).size.width,
+                              ),
                               Divider(),
                               Text(
-                                "nome",
+                                produtos[index]["nome"],
                                 style: TextStyle(fontSize: 25.0),
                               ),
                               Text(
-                                "R\$500,00",
+                                "R\$${produtos[index]["preco"]}",
                                 style: TextStyle(
                                     fontSize: 25.0, color: Colors.orange),
                               ),
                               Divider(),
                               Text(
-                                  "Texto de uma linha explicando algumas coisas do produto"),
+                                produtos[index]["descricao"],
+                                textAlign: TextAlign.justify,
+                              ),
                             ],
                           ),
                         ),
                       );
                     },
-                  );
-                }).toList(),
-              ),
-              Text(
-                "Produtos",
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 30.0, color: Colors.amber),
-              ),
-              Divider(),
-              Container(
-                height: (MediaQuery.of(context).size.height) / 1.3,
-                child: ListView.builder(
-                  scrollDirection: Axis.vertical,
-                  itemCount: 7,
-                  itemBuilder: (BuildContext context, int index) {
-                    return GestureDetector(
-                      onTap: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => Produto()));
-                      },
-                      child: new Container(
-                        decoration: BoxDecoration(
-                          border: Border.all(
-                              color: Colors.amber, style: BorderStyle.solid),
-                        ),
-                        height: 500.0,
-                        padding: EdgeInsets.all(10.0),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: <Widget>[
-                            Image.network(
-                                "https://www.pontofrio-imagens.com.br/ArVentilacao/Aquecedores/aquecedorEletrico/2233506/11665760/Aquecedor-Cadence-Halogenio-Oscilante-Comodita-1200W-com-3-niveis-de-aquecimento-AQC300-Preto-2233506.jpg"),
-                            Divider(),
-                            Text(
-                              "Nome Do Produto",
-                              style: TextStyle(
-                                fontSize: 23.0,
-                              ),
-                              textAlign: TextAlign.center,
-                            ),
-                          ],
-                        ),
-                      ),
-                    );
-                  },
+                  ),
                 ),
-              ),
-            ],
+                Text(
+                  "Produtos",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 30.0, color: Colors.amber),
+                ),
+                Divider(),
+                Container(
+                  height: (MediaQuery.of(context).size.height) / 1.3,
+                  child: GridView.builder(
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                      childAspectRatio: MediaQuery.of(context).size.width /
+                          (MediaQuery.of(context).size.height/1.1),
+                    ),
+                    itemCount: produtos == null ? 0 : produtos.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      getFotos(produtos[index]["id"]);
+                      return GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) =>
+                                      Produto(produtos[index]["id"])));
+                        },
+                        child: new Container(
+                          decoration: BoxDecoration(
+                            border: Border.all(
+                                color: Colors.amber, style: BorderStyle.solid),
+                          ),
+                          padding: EdgeInsets.all(10.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: <Widget>[
+                              Image.network(
+                                "http://boby.con4.com.br/imagens/${fotos[0]["foto"]}",
+                                fit: BoxFit.fill,
+                                height: MediaQuery.of(context).size.height/4.7,
+                              ),
+                              Divider(),
+                              Text(
+                                produtos[index]["nome"],
+                                style: TextStyle(
+                                  fontSize: 23.0,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                              Text(
+                                produtos[index]["descricao"],
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
-      ),
-    );
+      );
+    }
   }
-}
 
-_launchURL() async {
-  const url = 'https://wa.me/5531995012807?text=Ola vim pelo app';
-  if (await canLaunch(url)) {
-    await launch(url, enableJavaScript: true, forceWebView: false);
-  } else {
-    throw 'Não foi possivel abrir $url';
+  void getProdutos(String idCategoria) async {
+    http.Response request = await http.get(
+        "http://boby.con4.com.br/api/api.php?selecionarTodosprodutosCategoriaApi&id_categoria=${idCategoria}");
+    produtos = json.decode(request.body);
+    tamanho = produtos.length + 1;
+  }
+
+  void getFotos(String id) async {
+    http.Response request = await http.get(
+        "http://boby.con4.com.br/api/api.php?selecionarTodasfotosProdutoApi&id_produto=${id}");
+    fotos = json.decode(request.body);
+  }
+
+  void getAppDados() async {
+    http.Response request =
+        await http.get("http://boby.con4.com.br/api/api.php?selecionarAppApi");
+    dados = json.decode(request.body);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return _buildBody();
   }
 }
