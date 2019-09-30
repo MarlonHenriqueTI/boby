@@ -57,14 +57,14 @@ class _ProdutoState extends State<Produto> {
               icon: Icon(
                 Icons.arrow_back,
                 size: 35.0,
-                color: Colors.black54,
+                color: Colors.white,
               ),
               onPressed: () {
                 Navigator.pop(context);
               }),
           title: Text(
-            "BOBY",
-            style: TextStyle(color: Colors.black54, fontSize: 25.0),
+            "ROCHA",
+            style: TextStyle(color: Colors.white, fontSize: 25.0),
             textAlign: TextAlign.center,
           ),
           centerTitle: true,
@@ -73,7 +73,7 @@ class _ProdutoState extends State<Produto> {
                 icon: Icon(
                   FontAwesome.getIconData("whatsapp"),
                   size: 35.0,
-                  color: Colors.black54,
+                  color: Colors.white,
                 ),
                 onPressed: () {
                   _launchURL(dados[0]["whatsapp"]);
@@ -114,7 +114,7 @@ class _ProdutoState extends State<Produto> {
                 produtos[0]["nome"],
                 style: TextStyle(
                   fontSize: 30.0,
-                  color: Colors.amber,
+                  color: Colors.black,
                 ),
                 textAlign: TextAlign.center,
               ),
@@ -123,7 +123,7 @@ class _ProdutoState extends State<Produto> {
                 "R\$${produtos[0]["preco"]} em até ${produtos[0]["parcelas"]}x",
                 style: TextStyle(
                   fontSize: 25.0,
-                  color: Colors.orange,
+                  color: Colors.blue,
                 ),
                 textAlign: TextAlign.justify,
               ),
@@ -132,7 +132,7 @@ class _ProdutoState extends State<Produto> {
                 "Especificações:",
                 style: TextStyle(
                   fontSize: 25.0,
-                  color: Colors.orange,
+                  color: Colors.black,
                 ),
                 textAlign: TextAlign.justify,
               ),
@@ -146,7 +146,7 @@ class _ProdutoState extends State<Produto> {
                 "Contato:",
                 style: TextStyle(
                   fontSize: 25.0,
-                  color: Colors.orange,
+                  color: Colors.black,
                 ),
                 textAlign: TextAlign.justify,
               ),
@@ -162,7 +162,7 @@ class _ProdutoState extends State<Produto> {
                   onPressed: () {
                     _launchURL(produtos[0]["wpp"]);
                   },
-                  color: Colors.green[700],
+                  color: Colors.blue[700],
                   padding: EdgeInsets.all(20.0),
                   shape: RoundedRectangleBorder(),
                   child: Text(

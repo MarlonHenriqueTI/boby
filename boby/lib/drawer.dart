@@ -36,6 +36,10 @@ class _DrawerWidgetState extends State<DrawerWidget> {
           _launchURL("mailto:${dados[0]["email"]}");
         }),
         Divider(),
+        _tiles("SOBRE A EMPRESA", Icons.business, 1, (){
+          _launchURLIn("http://boby.con4.com.br/sobre-empresa.php");
+        }),
+        Divider(),
 
       ],
     );
@@ -44,12 +48,12 @@ class _DrawerWidgetState extends State<DrawerWidget> {
 //cria cada item do menu
   Widget _tiles(String text, IconData icon, int item, Function onTap) {
     return ListTile(
-      leading: Icon(icon, color: Colors.amber,),
+      leading: Icon(icon, color: Colors.white,),
       onTap: onTap,
       selected: item == pagina,
       title: Text(
         text,
-        style: TextStyle(fontWeight: FontWeight.bold, color: Colors.amber),
+        style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
       ),
     );
   }
@@ -64,7 +68,7 @@ class _DrawerWidgetState extends State<DrawerWidget> {
       child: Container(
           width: double.infinity,
           height: double.infinity,
-          color: Colors.black54,
+          color: Colors.blue[400],
           child: _listMenu()),
     );
   }
@@ -76,6 +80,15 @@ _launchURL(String link) async {
   var url = link;
   if (await canLaunch(url)) {
     await launch(url, enableJavaScript: true, forceWebView: false);
+  } else {
+    throw 'Não foi possivel abrir $url';
+  }
+}
+
+_launchURLIn(String link) async {
+  var url = link;
+  if (await canLaunch(url)) {
+    await launch(url, enableJavaScript: true, forceWebView: true, );
   } else {
     throw 'Não foi possivel abrir $url';
   }

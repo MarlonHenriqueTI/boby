@@ -1,4 +1,4 @@
-name: boby
+name: rocha
 description: Catalogo
 
 # The following defines the version and build number for your application.
@@ -27,7 +27,7 @@ dependencies:
   url_launcher: ^5.1.2
   flutter_swiper: ^1.1.6
   http: ^0.12.0+2
-  flutter_launcher_icons: "^0.7.3"
+  flutter_launcher_icons: ^0.7.3
 
 dev_dependencies:
   flutter_test:
@@ -79,4 +79,4 @@ flutter:
 flutter_icons:
   android: "launcher_icon"
   ios: true
-  image_path: "icone/logo.png"
+  image_path: "icone/logo-n.png"
