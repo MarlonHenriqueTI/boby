@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
+import 'package:rocha/sobre.dart';
 import 'categoria-single.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:connectivity/connectivity.dart';
 
 class DrawerWidget extends StatefulWidget {
   List dados;
@@ -14,6 +16,7 @@ class DrawerWidget extends StatefulWidget {
 }
 
 class _DrawerWidgetState extends State<DrawerWidget> {
+
 
   List categoria;
   List dados;
@@ -27,17 +30,19 @@ class _DrawerWidgetState extends State<DrawerWidget> {
       children: <Widget>[
         Divider(),
         _tiles("CHAMAR NO WHATSAPP", FontAwesome.getIconData("whatsapp"), 1, (){
-          _launchURL("https://wa.me/${dados[0]["whatsapp"]}?text=Ola vim pelo app");
+          _launchURL("https://wa.me/${dados[0]["whatsapp"]}?text=Olá, estou interessado em um produto que vi no aplicativo");
         }),
         Divider(),
-        _tiles("TELEFONE: ${dados[0]["telefone"]}", Icons.call, 1,(){}),
+        _tiles("TELEFONE: ${dados[0]["telefone"]}", Icons.call, 1,(){
+          _launchURL("tel:${dados[0]["telefone"]}");
+        }),
         Divider(),
         _tiles("E_MAIL: ${dados[0]["email"]}", Icons.mail_outline, 1, (){
           _launchURL("mailto:${dados[0]["email"]}");
         }),
         Divider(),
         _tiles("SOBRE A EMPRESA", Icons.business, 1, (){
-          _launchURLIn("http://boby.con4.com.br/sobre-empresa.php");
+          Navigator.push(context, MaterialPageRoute(builder: (context) => Sobre()));
         }),
         Divider(),
 
@@ -88,7 +93,7 @@ _launchURL(String link) async {
 _launchURLIn(String link) async {
   var url = link;
   if (await canLaunch(url)) {
-    await launch(url, enableJavaScript: true, forceWebView: true, );
+    await launch(url, enableJavaScript: true, forceWebView: true, enableDomStorage: true );
   } else {
     throw 'Não foi possivel abrir $url';
   }
